@@ -18,9 +18,13 @@ function Main()
     sendrom = H * transpose(eye(15));
     addedZeroLen = 0;
 
-    function itemP = ReturnItemProbMap(M, len)
+    function itemP = ReturnItemProbMap(M, len, firstElement)
         % This function return probability dict based on symbol count.
-        itemP = containers.Map('KeyType','char','ValueType','double');
+        if (isa(firstElement, 'char'))
+            itemP = containers.Map('KeyType','char', 'ValueType','double');
+        else
+            itemP = containers.Map('KeyType','uint32', 'ValueType','double');
+        end
         for m = keys(M)
             thekey = m{1};
             count = double(M(thekey));
@@ -28,9 +32,13 @@ function Main()
         end
     end
 
-    function itemCount = ReturnItemCountMap(l)
+    function itemCount = ReturnItemCountMap(l, firstElement)
         % This function count every symbol in given list.
-        itemCount = containers.Map('KeyType','char','ValueType','double');
+        if (isa(firstElement, 'char'))
+            itemCount = containers.Map('KeyType','char', 'ValueType', 'double');
+        else
+            itemCount = containers.Map('KeyType','uint32', 'ValueType', 'double');
+        end
         for m = l
             if (isKey(itemCount, m))
                 itemCount(m) = itemCount(m) + 1;
@@ -95,8 +103,8 @@ function Main()
 
     
     function [finalMessage, dict] = Transmitter(message)
-        itemCounts = ReturnItemCountMap(message);
-        itemPs = ReturnItemProbMap(itemCounts, length(message));
+        itemCounts = ReturnItemCountMap(message, message(1,1));
+        itemPs = ReturnItemProbMap(itemCounts, length(message), class(message(1,1)));
 
         [dict, avglen] = huffmandict(keys(itemPs), cell2mat(values(itemPs)));
 
@@ -110,6 +118,12 @@ function Main()
         encodedMessage = mod(reshapedArr*G, 2);
         interLeavedMessage = ReturnArrFlat(encodedMessage);
         finalMessage = [frame, interLeavedMessage];
+    end
+    function addedParasite = AddParasite(message)
+        randomInt = randi([1 100]);
+        randomBinary = de2bi(randomInt);
+        finalWrandom = [randomBinary, message];
+        addedParasite = ReturnBrokenArray(finalWrandom);
     end
 
     function recived = Receiver(message, dict)
@@ -126,21 +140,18 @@ function Main()
         recived = huffmandeco(fixed, dict);
     end
     
-    function addedParasite = AddParasite(message)
-        randomInt = randi([1 100]);
-        randomBinary = de2bi(randomInt);
-        finalWrandom = [randomBinary, message];
-        addedParasite = ReturnBrokenArray(finalWrandom);
-    end
+    
+
 
     msg = importdata("Mesaj.txt");
-    msg = cell2mat(msg);    
+    msg = cell2mat(msg);
     
-    msg
-    c
+    img = imread("istinye_universitesi_MYO.jpg");
+    [rowS, colS] = size(img);
+    img = reshape(img, 1, rowS*colS);
+    
     [final, dict] = Transmitter(msg);
     finalWparasite = AddParasite(final);
-    recivedMessage = Receiver(finalWparasite, dict);
-    
-    cell2mat(recivedMessage)
+    recivedMessage = Receiver(finalWparasite, dict)
+        
 end
