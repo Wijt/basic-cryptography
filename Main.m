@@ -140,21 +140,27 @@ function Main()
         recived = huffmandeco(fixed, dict);
     end
     
-
-    msg = importdata("Mesaj.txt");
-    msg = cell2mat(msg);
+    %% USAGE 0=text, 1=image
+    isImg = 1;
     
-    img = imread('istinye_universitesi_MYO.jpg');
-    [rowS, colS, zdim] = size(img);
-    imgReshaped = reshape(img, 1, rowS*colS*zdim);
-    
-    [final, dict] = Transmitter(imgReshaped);
+    if (isImg == 1)
+        msg = imread('istinye_universitesi_MYO.jpg');
+        [rowS, colS, zdim] = size(msg);
+        input = reshape(msg, 1, rowS * colS * zdim);
+    else
+        msg = importdata("Mesaj.txt");
+        input = cell2mat(msg);
+    end
+       
+    [final, dict] = Transmitter(input);
     finalWparasite = AddParasite(final);
-    recivedMessage = Receiver(finalWparasite, dict)
+    recivedMessage = Receiver(finalWparasite, dict);
     
-    img2 = reshape(recivedMessage, rowS, colS, zdim);
-    img2= uint8(img2);
-    class(img2)
-    image(img2)
-    isequal(img, img2)    
+    if (isImg == 1)
+        img2 = reshape(recivedMessage, rowS, colS, zdim);
+        img2 = uint8(img2);
+        image(img2)
+    else
+        cell2mat(recivedMessage)
+    end
 end
