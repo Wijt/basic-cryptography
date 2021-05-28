@@ -23,7 +23,7 @@ function Main()
         if (isa(firstElement, 'char'))
             itemP = containers.Map('KeyType','char', 'ValueType','double');
         else
-            itemP = containers.Map('KeyType','uint32', 'ValueType','double');
+            itemP = containers.Map('KeyType','double', 'ValueType','double');
         end
         for m = keys(M)
             thekey = m{1};
@@ -37,7 +37,7 @@ function Main()
         if (isa(firstElement, 'char'))
             itemCount = containers.Map('KeyType','char', 'ValueType', 'double');
         else
-            itemCount = containers.Map('KeyType','uint32', 'ValueType', 'double');
+            itemCount = containers.Map('KeyType','double', 'ValueType', 'double');
         end
         for m = l
             if (isKey(itemCount, m))
@@ -104,7 +104,7 @@ function Main()
     
     function [finalMessage, dict] = Transmitter(message)
         itemCounts = ReturnItemCountMap(message, message(1,1));
-        itemPs = ReturnItemProbMap(itemCounts, length(message), class(message(1,1)));
+        itemPs = ReturnItemProbMap(itemCounts, length(message), message(1,1));
 
         [dict, avglen] = huffmandict(keys(itemPs), cell2mat(values(itemPs)));
 
@@ -140,18 +140,21 @@ function Main()
         recived = huffmandeco(fixed, dict);
     end
     
-    
-
 
     msg = importdata("Mesaj.txt");
     msg = cell2mat(msg);
     
-    img = imread("istinye_universitesi_MYO.jpg");
-    [rowS, colS] = size(img);
-    img = reshape(img, 1, rowS*colS);
+    img = imread('istinye_universitesi_MYO.jpg');
+    [rowS, colS, zdim] = size(img);
+    imgReshaped = reshape(img, 1, rowS*colS*zdim);
     
-    [final, dict] = Transmitter(msg);
+    [final, dict] = Transmitter(imgReshaped);
     finalWparasite = AddParasite(final);
     recivedMessage = Receiver(finalWparasite, dict)
-        
+    
+    img2 = reshape(recivedMessage, rowS, colS, zdim);
+    img2= uint8(img2);
+    class(img2)
+    image(img2)
+    isequal(img, img2)    
 end
