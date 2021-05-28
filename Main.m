@@ -137,7 +137,7 @@ function Main()
     msg = cell2mat(msg);    
     
     msg
-    
+    c
     [final, dict] = Transmitter(msg);
     finalWparasite = AddParasite(final);
     recivedMessage = Receiver(finalWparasite, dict);
